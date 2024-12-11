@@ -1,12 +1,8 @@
-from fastapi import FastAPI, UploadFile, File, Form, Depends
-from typing import Optional
-#from pydantic import BaseModel
-#import shutil
-#import os
-#import uuid
+from fastapi import FastAPI, Depends
 import orm.repo as repo 
 from sqlalchemy.orm import Session
-from orm.config import generador_sesion 
+from orm.config import generador_sesion
+import orm.esquema as esquema 
 
 
 app = FastAPI()
@@ -62,11 +58,6 @@ def lista_fotos (sesion : Session = Depends (generador_sesion)):
     print("Api consultando la tabla fotos")
     return repo.fotos(sesion)
 
-#@app.get("/calificaciones")
-#def calificaciones (sesion:Session = Depends(generador_sesion)):
-#    print("Api consultando calificaciones")
-#    return repo.calificaciones(sesion)
-
 
 #========================D E L E T E============================
 
@@ -102,3 +93,38 @@ def eliminar_alumos(id : int, sesion: Session = Depends (generador_sesion)):
     }
     
     return mensaje
+
+#===============P O S T======================
+
+#POST ("/alumnos")
+@app.post("/alumnos")
+def guardar_alumnos (alumno:esquema.AlumnosBase, sesion:Session=Depends(generador_sesion)):
+    print(alumno)
+    return repo.guardar_alumnos(sesion, alumno)
+
+
+@app.post("/alumnos/{id}/calificaciones")
+def guardar_calificaciones(calificaciones:esquema.CalificacionesBase, id:int, sesion:Session=Depends(generador_sesion)):
+    print(calificaciones)
+    return repo.guardar_calificaciones(sesion, id, calificaciones)
+
+
+@app.post("/alumnos/{id}/fotos")
+def guardar_fotos(fotos:esquema.FotosBase, id:int, sesion:Session=Depends(generador_sesion)):
+    print(fotos)
+    return repo.guardar_foto(sesion, id, fotos)
+
+
+
+#===================P U T======================
+@app.put("/alumnos/{id}")
+def actualizar_alumno(alumno:esquema.AlumnosBase, id:int, sesion:Session=Depends(generador_sesion)):
+    return repo.actualizar_alumno(sesion, id, alumno)
+
+@app.put("/calificaciones/{id}")
+def actualizar_calificaciones(calificaciones:esquema.CalificacionesBase, id:int, sesion:Session=Depends(generador_sesion)):
+    return repo.actualizar_calificaciones(sesion, id, calificaciones)
+
+@app.put("/fotos/{id}")
+def actualizar_fotos(fotos:esquema.FotosBase, id:int, sesion:Session=Depends(generador_sesion)):
+    return repo.actualizar_foto(sesion, id, fotos)
